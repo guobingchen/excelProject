@@ -8,7 +8,7 @@ from tkinter import filedialog
 # 初始化窗口
 root = tk.Tk()
 root.title("学生成绩通知系统")
-root.geometry("400x300")
+root.geometry("570x600")
 
 sender = '1183298554@qq.com'  # 邮件发送账号
 reciever = '332582281@qq.com'  # 接收邮件账号
@@ -33,6 +33,7 @@ def import_excel():#导入Excel文件
         print("请选择一个Excel文件")
     try:
         df = pd.read_excel(filename, skiprows=[0])
+        output_text.insert(tk.END, "导入完成\n")
     except FileNotFoundError:
         print("文件不存在或路径错误")
         exit()
@@ -79,22 +80,25 @@ def send_email():
 def exit_app():
     root.destroy()  # 关闭GUI窗口
 
-# 创建输入框和标签
+# 创建接受者邮箱标签和输入框
 receiver_label = tk.Label(root, text="接受者邮箱：")
-receiver_label.pack()
+receiver_label.grid(row=0, column=0, padx=1, pady=5)
 receiver_entry = tk.Entry(root)
-receiver_entry.pack()
+receiver_entry.grid(row=0, column=1, padx=1, pady=5)
+
 
 # 创建导入按钮和发送按钮
-import_button = tk.Button(root, text="导入Excel文件", command=import_excel)
-send_button = tk.Button(root, text="发送邮件", command=send_email)
-exit_button = tk.Button(root, text="退出", command=exit_app)
-import_button.pack()
-send_button.pack()
-exit_button.pack()
+import_button = tk.Button(root, text="导入Excel文件", command=import_excel, padx=10, pady=10)
+send_button = tk.Button(root, text="发送邮件", command=send_email, padx=10, pady=10)
+exit_button = tk.Button(root, text="退出", command=exit_app, padx=10, pady=10)
 
 # 创建输出文本框
 output_text = tk.Text(root)
-output_text.pack()
+
+# 将控件放置在网格中
+import_button.grid(row=1, column=0)
+send_button.grid(row=1, column=1)
+output_text.grid(row=2, column=0, columnspan=2)
+exit_button.grid(row=3, column=0, columnspan=2)
 
 root.mainloop()  # 启动GUI主循环
