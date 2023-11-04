@@ -20,6 +20,8 @@ smtp_port = 465  # 固定端口
 stmp=smtplib.SMTP_SSL(smtp_server,smtp_port)
 stmp.login(sender,password)
 
+result = []
+index = 0
 def import_excel():#导入Excel文件
     global filename
     filename = filedialog.askopenfilename(filetypes=[('Excel Files', '*.xlsx *.xls')])
@@ -29,8 +31,6 @@ def import_excel():#导入Excel文件
         print(df)
     else:
         print("请选择一个Excel文件")
-
-def send_email():
     try:
         df = pd.read_excel(filename, skiprows=[0])
     except FileNotFoundError:
@@ -38,10 +38,8 @@ def send_email():
         exit()
     except Exception as e:
         print("发生了错误:", str(e))
-        exit()
 
     grouped = df.groupby("姓名")
-    contents = []
     for name, group in grouped:
         content = "亲爱的" + name + "同学：" + "\n"
         content += ("祝贺您顺利完成本学期的学习！教务处在此向您发送最新的成绩单。\n\n")
@@ -53,10 +51,17 @@ def send_email():
         content += ("再次恭喜您，祝您学习进步、事业成功！\n\n")
         content += ("教务处\n")
 
-        reciever = receiver_entry.get()  # 获取输入框中的邮箱地址
+        result.append(content)
 
-        
-        message = MIMEText(content, 'plain', 'utf-8')  #发送的内容
+
+
+def send_email():
+        global index
+        if(index+1 > len(result)):
+            output_text.insert(tk.END, "成绩单已经发送完毕\n")
+            return
+        reciever = receiver_entry.get()  # 获取输入框中的邮箱地址
+        message = MIMEText(result[index], 'plain', 'utf-8')  #发送的内容
         message['From'] = sender
         message['To'] = reciever
         subject = '成绩单发送'
@@ -64,9 +69,12 @@ def send_email():
         message['Subject'] = Header(subject, 'utf-8') #邮件标题
         try:
             stmp.sendmail(sender, reciever, message.as_string())
+            output_text.insert(tk.END, f"成绩单 {index+1} 已成功发送至 {reciever}\n")
+            index += 1
         except Exception as e:
-            print ('邮件发送失败--' + str(e))
-            print ('邮件发送成功')
+            output_text.insert(tk.END, f"邮件发送失败--{str(e)}\n")
+        
+        
 
 def exit_app():
     root.destroy()  # 关闭GUI窗口
@@ -84,5 +92,9 @@ exit_button = tk.Button(root, text="退出", command=exit_app)
 import_button.pack()
 send_button.pack()
 exit_button.pack()
+
+# 创建输出文本框
+output_text = tk.Text(root)
+output_text.pack()
 
 root.mainloop()  # 启动GUI主循环
